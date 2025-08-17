@@ -1,265 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gemini AI Chatbot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zudo AI Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
 </head>
 <body>
-    <div class="app-container">
-        <header class="header">
-            <h1>Zudo AI Assistant</h1>
-            <div class="function-selector">
-                <label for="functionSelect">Select Function:</label>
-                <select id="functionSelect">
-                    <option value="chat">Chat (General)</option>
-                    <option value="rewrite">Rewrite Text</option>
-                    <option value="summarize">Summarize Text</option>
-                    <option value="code_gen">Code Generation</option>
-                    <option value="translate">Translate Text</option>
-                    <option value="adjust_tone">Adjust Tone</option>
-                    <option value="image_desc">Generate Image Description/Prompt</option>
-                </select>
-            </div>
-        </header>
-
-        <main class="chat-container" id="chat-container">
-            <div id="chatbox" class="chatbox">
-                <div class="bot-message message">
-                    <div class="message-content">Hi! I'm your Zudo Assistant and got api key by Gemini 😁. </div>
-                </div>
-            </div>
-        </main>
-
-        <footer class="input-container">
-            <div id="input-fields-container">
-                <textarea id="textInput" placeholder="Type your message here..." rows="1" autofocus></textarea>
-            </div>
-            <button id="buttonInput" aria-label="Send message">Send</button>
-        </footer>
+  <header class="header">
+    <h1>Zudo AI Assistant</h1>
+    <div class="function-selector">
+      <label for="functionSelect">Select Function:</label>
+      <select id="functionSelect">
+        <option value="chat">Chat (General)</option>
+        <option value="rewrite">Rewrite Text</option>
+        <option value="summarize">Summarize Text</option>
+        <option value="code_gen">Code Generation</option>
+        <option value="translate">Translate Text</option>
+        <option value="adjust_tone">Adjust Tone</option>
+        <option value="image_desc">Generate Image Prompt</option>
+      </select>
     </div>
+  </header>
 
-    <script>
+  <main class="chat-container" id="chat-container">
+    <div id="chatbox" class="chatbox">
+      <div class="bot-message message">
+        <div class="message-content">Hi! I'm your Zudo Assistant (powered by Gemini API). Ask me anything!</div>
+      </div>
+    </div>
+  </main>
 
-        let currentFunction = 'chat';
-        let currentTone = 'neutral';
-        let currentLength = 'medium';
-        let currentLanguage = 'python'; 
+  <footer class="input-container">
+    <div id="input-fields-container">
+      <input id="textInput" placeholder="Type your message here..." rows="auto" autofocus></input>
+    </div>
+    <button id="buttonInput" aria-label="Send message">Send</button>
+  </footer>
 
-        hljs.highlightAll();
+  <script>
+   let currentFunction = 'chat';
+    let currentTone = 'neutral';
+    let currentLength = 'medium';
+    let currentLanguage = 'python'; 
 
-        function scrollToBottom() {
-            const chatContainer = document.getElementById('chat-container');
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+    hljs.highlightAll();
+
+    function scrollToBottom() {
+      const chatContainer = document.getElementById('chat-container');
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function sanitizeHtml(text) {
+      var element = document.createElement('div');
+      element.innerText = text;
+      return element.innerHTML;
+    }
+
+    function displayMessage(sender, message, isCode = false, language = '') {
+      const chatbox = $("#chatbox");
+      let messageHtml;
+
+      if (sender === 'user') {
+        messageHtml = `
+          <div class="user-message message">
+            <div class="message-content">${sanitizeHtml(message)}</div>
+          </div>`;
+      } else {
+        if (isCode) {
+          messageHtml = `
+            <div class="bot-message message code-block-message">
+              <div class="copy-btn" onclick="copyToClipboard(this)"><i class="fa fa-copy"></i></div>
+              <pre><code class="language-${language}">${sanitizeHtml(message)}</code></pre>
+            </div>`;
+        } else {
+          messageHtml = `
+            <div class="bot-message message">
+              <div class="message-content">
+                ${sanitizeHtml(message)}
+                <span class="copy-btn" onclick="copyToClipboard(this)"><i class="fa fa-copy"></i></span>
+              </div>
+            </div>`;
         }
+      }
 
-        function sanitizeHtml(text) {
-            var element = document.createElement('div');
-            element.innerText = text;
-            return element.innerHTML;
-        }
+      chatbox.append(messageHtml);
+      scrollToBottom();
 
-        function displayMessage(sender, message, isCode = false, language = '') {
-            const chatbox = $("#chatbox");
-            let messageHtml;
+      if (isCode) {
+        const lastCodeBlock = chatbox.find('.code-block-message:last code');
+        if (lastCodeBlock.length) hljs.highlightElement(lastCodeBlock[0]);
+      }
+    }
 
-            if (sender === 'user') {
-                messageHtml = `<div class="user-message message"><div class="message-content">${sanitizeHtml(message)}</div></div>`;
-            } else { 
-                if (isCode) {
-                    messageHtml = `<div class="bot-message message code-block-message">
-                                        <pre><code class="language-${language}">${sanitizeHtml(message)}</code></pre>
-                                    </div>`;
-                } else {
-                    messageHtml = `<div class="bot-message message"><div class="message-content">${sanitizeHtml(message)}</div></div>`;
-                }
-            }
-            chatbox.append(messageHtml);
-            scrollToBottom();
+    function copyToClipboard(button) {
+      const text = button.parentElement.innerText.replace("📋", "").trim();
+      navigator.clipboard.writeText(text).then(() => {
+        button.innerHTML = '<i class="fa fa-check" aria-hidden="true"></i>';
+        setTimeout(() => (button.innerHTML = '<i class="fa fa-copy"></i>'), 1500);
+      });
+    }
 
-            if (isCode) {
-                const lastCodeBlock = chatbox.find('.code-block-message:last code');
-                if (lastCodeBlock.length) {
-                    hljs.highlightElement(lastCodeBlock[0]);
-                }
-            }
-        }
+    async function getResponse() {
+      let userText = $("#textInput").val().trim();
+      if (!userText) return;
 
-        async function getResponse() {
-            let userText = $("#textInput").val().trim();
-            if (!userText) return;
+      displayMessage('user', userText);
+      $("#textInput").val(""); 
+      $("#textInput").css('height', 'auto'); 
 
-            displayMessage('user', userText);
-            $("#textInput").val(""); 
-            $("#textInput").css('height', 'auto'); 
+      let endpoint = '/generate_text'; 
+      let data = { prompt: userText }; 
 
-            let endpoint = '/generate_text'; 
-            let data = { prompt: userText }; 
+      switch (currentFunction) {
+        case 'chat': endpoint = '/generate_text'; data = { prompt: userText }; break;
+        case 'rewrite': endpoint = '/rewrite'; data = { text: userText, tone: currentTone }; break;
+        case 'summarize': endpoint = '/summarize'; data = { text: userText, length: currentLength }; break;
+        case 'code_gen': endpoint = '/generate_code'; data = { prompt: userText, language: currentLanguage }; break;
+        case 'translate': endpoint = '/translate'; data = { text: userText, target_lang: currentLanguage }; break;
+        case 'adjust_tone': endpoint = '/adjust_tone'; data = { text: userText, tone: currentTone }; break;
+        case 'image_desc': endpoint = '/generate_image_description'; data = { prompt: userText }; break;
+      }
 
-            switch (currentFunction) {
-                case 'chat':
-                    endpoint = '/generate_text';
-                    data = { prompt: userText };
-                    break;
-                case 'rewrite':
-                    endpoint = '/rewrite';
-                    data = { text: userText, tone: currentTone };
-                    break;
-                case 'summarize':
-                    endpoint = '/summarize';
-                    data = { text: userText, length: currentLength };
-                    break;
-                case 'code_gen':
-                    endpoint = '/generate_code';
-                    data = { prompt: userText, language: currentLanguage };
-                    break;
-                case 'translate':
-                    endpoint = '/translate';
-                    data = { text: userText, target_lang: currentLanguage };
-                    break;
-                case 'adjust_tone':
-                    endpoint = '/adjust_tone';
-                    data = { text: userText, tone: currentTone };
-                    break;
-                case 'image_desc':
-                    endpoint = '/generate_image_description';
-                    data = { prompt: userText };
-                    break;
-                default:
-                    console.error("Unknown function selected.");
-                    displayMessage('bot', 'Error: Unknown function selected.');
-                    return;
-            }
-
-            try {
-                const response = await $.ajax({
-                    url: endpoint,
-                    type: "POST", 
-                    contentType: "application/json", 
-                    data: JSON.stringify(data) 
-                });
-
-                if (response && response.response) {
-                    let isCodeOutput = (currentFunction === 'code_gen');
-                    displayMessage('bot', response.response, isCodeOutput, currentLanguage);
-                } else if (response && response.error) {
-                    displayMessage('bot', `Error: ${response.error}`);
-                } else {
-                    displayMessage('bot', 'Error: Received an empty or unexpected response.');
-                }
-            } catch (error) {
-                let errorMessage = 'An error occurred while fetching response.';
-                if (error.responseJSON && error.responseJSON.error) {
-                    errorMessage = `Error: ${error.responseJSON.error}`;
-                } else if (error.statusText) {
-                    errorMessage = `Network Error: ${error.statusText}`;
-                }
-                displayMessage('bot', errorMessage);
-                console.error("AJAX Error:", error);
-            }
-        }
-
-        const functionSelect = $("#functionSelect");
-        const inputFieldsContainer = $("#input-fields-container");
-        const textInput = $("#textInput"); 
-
-        function updateInputFields() {
-            currentFunction = functionSelect.val();
-            inputFieldsContainer.empty(); 
-            inputFieldsContainer.append(textInput); 
-
-            let newFieldsHtml = '';
-
-            switch (currentFunction) {
-                case 'rewrite':
-                case 'adjust_tone':
-                    newFieldsHtml = `
-                        <label for="toneSelect">Tone:</label>
-                        <select id="toneSelect" class="param-select">
-                            <option value="neutral">Neutral</option>
-                            <option value="professional">Professional</option>
-                            <option value="casual">Casual</option>
-                            <option value="formal">Formal</option>
-                            <option value="friendly">Friendly</option>
-                            <option value="humorous">Humorous</option>
-                        </select>
-                    `;
-                    break;
-                case 'summarize':
-                    newFieldsHtml = `
-                        <label for="lengthSelect">Length:</label>
-                        <select id="lengthSelect" class="param-select">
-                            <option value="short">Short</option>
-                            <option value="medium">Medium</option>
-                            <option value="long">Long</option>
-                        </select>
-                    `;
-                    break;
-                case 'code_gen':
-                    newFieldsHtml = `
-                        <label for="codeLangSelect">Language:</label>
-                        <select id="codeLangSelect" class="param-select">
-                            <option value="python">Python</option>
-                            <option value="javascript">JavaScript</option>
-                            <option value="java">Java</option>
-                            <option value="csharp">C#</option>
-                            <option value="cpp">C++</option>
-                        </select>
-                    `;
-                    break;
-                case 'translate':
-                    newFieldsHtml = `
-                        <label for="targetLangSelect">Target Language:</label>
-                        <select id="targetLangSelect" class="param-select">
-                            <option value="Tamil">Tamil</option>
-                            <option value="Hindi">Hindi</option>
-                            <option value="Spanish">Spanish</option>
-                            <option value="French">French</option>
-                            <option value="German">German</option>
-                            <option value="Japanese">Japanese</option>
-                            <option value="Chinese">Chinese</option>
-                        </select>
-                    `;
-                    break;
-            }
-            inputFieldsContainer.prepend(newFieldsHtml); 
-
-            $("#toneSelect").on('change', function() { currentTone = $(this).val(); });
-            $("#lengthSelect").on('change', function() { currentLength = $(this).val(); });
-            $("#codeLangSelect").on('change', function() { currentLanguage = $(this).val(); });
-            $("#targetLangSelect").on('change', function() { currentLanguage = $(this).val(); });
-        }
-
-        functionSelect.on('change', updateInputFields);
-
-        $("#textInput").on('keypress', function(e) {
-            if (e.which == 13 && !e.shiftKey) { 
-                e.preventDefault();
-                getResponse();
-            }
+      try {
+        const response = await $.ajax({
+          url: endpoint,
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify(data)
         });
 
-        $("#buttonInput").click(function() {
-            getResponse();
-        });
+        if (response && response.response) {
+          let isCodeOutput = (currentFunction === 'code_gen');
+          displayMessage('bot', response.response, isCodeOutput, currentLanguage);
+        } else if (response && response.error) {
+          displayMessage('bot', `Error: ${response.error}`);
+        } else {
+          displayMessage('bot', ' Unexpected response.');
+        }
+      } catch (error) {
+        let errorMessage = ' An error occurred.';
+        if (error.responseJSON && error.responseJSON.error) errorMessage = `Error: ${error.responseJSON.error}`;
+        else if (error.statusText) errorMessage = `Network Error: ${error.statusText}`;
+        displayMessage('bot', errorMessage);
+      }
+    }
 
-        $("#textInput").on('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
+    $("#functionSelect").on('change', function() {
+      currentFunction = $(this).val();
+    });
 
-        $(document).ready(function() {
-            updateInputFields(); 
-            scrollToBottom(); 
-        });
-    </script>
+    $("#textInput").on('keypress', function(e) {
+      if (e.which == 13 && !e.shiftKey) { 
+        e.preventDefault();
+        getResponse();
+      }
+    });
+
+    $("#buttonInput").click(getResponse);
+
+    $("#textInput").on('input', function() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
+    });
+  </script>
 </body>
 </html>
