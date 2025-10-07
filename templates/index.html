@@ -4,30 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Zudo AI Assistant</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   
 </head>
 <body>
   <header class="header">
-    <h1>Zudo AI Assistant</h1>
+    <h1>🤖 Zudo AI Assistant</h1>
     <div class="function-selector">
-      <label for="functionSelect">Select Function:</label>
+      <label for="functionSelect">Mode:</label>
       <select id="functionSelect">
-        <option value="chat">Chat (General)</option>
-        <option value="rewrite">Rewrite Text</option>
-        <option value="summarize">Summarize Text</option>
-        <option value="code_gen">Code Generation</option>
-        <option value="translate">Translate Text</option>
-        <option value="adjust_tone">Adjust Tone</option>
-        <option value="image_desc">Generate Image Prompt</option>
+        <option value="chat">💬 General Chat</option>
+        <option value="rewrite">✏️ Rewrite Text</option>
+        <option value="summarize">📝 Summarize</option>
+        <option value="code_gen">💻 Code Generation</option>
+        <option value="translate">🌐 Translate</option>
+        <option value="adjust_tone">🎭 Adjust Tone</option>
+        <option value="image_desc">🎨 Image Prompt</option>
       </select>
     </div>
   </header>
@@ -35,7 +35,7 @@
   <main class="chat-container" id="chat-container">
     <div id="chatbox" class="chatbox">
       <div class="bot-message message">
-        <div class="message-content">Hi! I'm your Zudo Assistant (powered by Gemini API). Ask me anything!</div>
+        <div class="message-content">👋 Hi! I'm your Zudo Assistant powered by Gemini AI. How can I help you today?</div>
       </div>
     </div>
   </main>
